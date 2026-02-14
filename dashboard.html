@@ -2,39 +2,27 @@
 <html>
 <head>
     <title>Dashboard</title>
-    <style>
-        body { font-family: Arial; padding: 20px; }
-        .logout { background: #dc3545; color: white; border: none; padding: 10px; cursor: pointer; }
-    </style>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Dashboard</h1>
-    <p>Welcome, <span id="userName"></span>!</p>
-    <button class="logout" onclick="logout()">Logout</button>
+    <div class="container">
+        <h1>Dashboard</h1>
+        <p>Welcome, <span id="userName"></span>!</p>
+        <button class="button" onclick="logout()">Logout</button>
+    </div>
 
     <script>
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                // Fetch user name from Firestore
-                db.collection('users').doc(user.uid).get()
-                    .then((doc) => {
-                        if (doc.exists) {
-                            document.getElementById('userName').textContent = doc.data().name;
-                        }
-                    });
-            } else {
-                window.location.href = 'index.html';
-            }
-        });
+        // Check if user is logged in
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (!currentUser) {
+            window.location.href = 'index.html';
+        } else {
+            document.getElementById('userName').textContent = currentUser.name;
+        }
 
         function logout() {
-            auth.signOut().then(() => {
-                window.location.href = 'index.html';
-            });
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
         }
     </script>
 </body>
