@@ -2,18 +2,7 @@
 <html>
 <head>
     <title>Sign Up</title>
-    <style>
-        * { box-sizing: border-box; font-family: Arial; }
-        body { background: #f5f5f5; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .container { background: white; padding: 2rem; border-radius: 10px; width: 300px; }
-        input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; }
-        button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .error { color: red; font-size: 14px; }
-    </style>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -22,7 +11,7 @@
             <input type="text" id="name" placeholder="Full Name" required>
             <input type="email" id="email" placeholder="Email" required>
             <input type="password" id="password" placeholder="Password" required>
-            <div id="errorMessage" class="error"></div>
+            <div id="message" class="message"></div>
             <button type="submit">Sign Up</button>
         </form>
         <p>Already have an account? <a href="login.html">Login</a></p>
@@ -34,24 +23,28 @@
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('errorMessage');
+            const messageDiv = document.getElementById('message');
 
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Add user name to Firestore
-                    return db.collection('users').doc(userCredential.user.uid).set({
-                        name: name,
-                        email: email,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                })
-                .then(() => {
-                    alert('Signup successful!');
-                    window.location.href = 'dashboard.html';
-                })
-                .catch((error) => {
-                    errorDiv.textContent = error.message;
-                });
+            // Get existing users from localStorage
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+
+            // Check if email already exists
+            if (users.find(u => u.email === email)) {
+                messageDiv.style.color = 'red';
+                messageDiv.textContent = 'Email already registered!';
+                return;
+            }
+
+            // Add new user
+            users.push({ name, email, password });
+            localStorage.setItem('users', JSON.stringify(users));
+
+            // Store current logged-in user (optional)
+            localStorage.setItem('currentUser', JSON.stringify({ name, email }));
+
+            messageDiv.style.color = 'green';
+            messageDiv.textContent = 'Signup successful! Redirecting...';
+            setTimeout(() => window.location.href = 'dashboard.html', 1500);
         });
     </script>
 </body>
