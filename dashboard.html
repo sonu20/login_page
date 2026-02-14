@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .logout { background: #dc3545; color: white; border: none; padding: 10px; cursor: pointer; }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+</head>
+<body>
+    <h1>Dashboard</h1>
+    <p>Welcome, <span id="userName"></span>!</p>
+    <button class="logout" onclick="logout()">Logout</button>
+
+    <script>
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // Fetch user name from Firestore
+                db.collection('users').doc(user.uid).get()
+                    .then((doc) => {
+                        if (doc.exists) {
+                            document.getElementById('userName').textContent = doc.data().name;
+                        }
+                    });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            });
+        }
+    </script>
+</body>
+</html>
